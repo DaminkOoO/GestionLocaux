@@ -1,0 +1,112 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swagap:243px;p");
+* {
+  font-family: "poppins";
+  margin: 0;
+  padding: 0;
+
+  border: none;
+}
+
+header {
+  background-color: #eee;
+  margin: 50px 47px;
+  padding: 10px;
+  border-radius: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+header nav {
+  background-color: #eee;
+  display: flex;
+  gap: 243px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 50px;
+  border-radius: 100px;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+header nav #Logo {
+  background-color: #eee;
+  font-family: "poppins";
+  color: #22a39f;
+  font-weight: 700;
+  font-size: 45px;
+}
+header nav div {
+  display: flex;
+  gap: 25px;
+  background-color: #eee;
+}
+header nav a,
+header nav a:visited {
+  background-color: #eee;
+  text-decoration: none;
+  color: black;
+}
+input,
+select {
+  background-color: #fff;
+  padding: 0 10px;
+  margin-bottom: 10px;
+  width: 250px;
+  height: 30px;
+  border: 2px solid black;
+}
+form {
+  display: flex;
+  flex-direction: column;
+  border: 2px solid black;
+  padding: 15px 30px;
+  align-items: center;
+  border-radius: 25px;
+}
+select {
+  margin-bottom: 10px;
+
+  background: #fff;
+}
+main div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16%;
+}
+#salles_wrapper,#demandeur_wrapper{
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  text-align: center;
+  background-color: #eee;
+  width: 75%;
+  padding: 30px;
+
+  margin-bottom: 100px;
+  border-radius: 100px;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+footer {
+  text-align: center;
+}
+body {
+  background-color: #f3efe0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+}
+form {
+  width: 130%;
+}
+table {
+  border-collapse: collapse;
+  border: 2px solid black;
+}
+
+th,
+td {
+  padding: 5px;
+  border: 1px solid grey;
+}

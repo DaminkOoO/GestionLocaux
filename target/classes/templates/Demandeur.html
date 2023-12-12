@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gérer Réservation</title>
+    <link rel="stylesheet" href="style/style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.css"
+    />
+  </head>
+  <body>
+    <header>
+      <nav>
+        <span id="Logo"> Commune </span>
+        <div>
+          <a href="GererReservation.html">Gérer Réservation</a>
+          <a href="">Emettre Facture</a>
+          <a href="Salle.html">Salle</a>
+          <a
+            href="Demandeur.html"
+            style="color: #22a39f; font-weight: 700; text-decoration: underline"
+            >Demandeur</a
+          >
+        </div>
+      </nav>
+    </header>
+    <main>
+      <h1 style="margin-bottom: 30px">Gestion Demandeurs</h1>
+      <div>
+        <section>
+          <form action="" method="post">
+            <label for="idDemandeur">id</label>
+            <input type="text" name="idDemandeur" disabled />
+            <label for="nomDemandeur">Nom</label>
+            <input type="text" name="nomDemandeur" />
+            <label for="adresse">Adresse</label>
+            <input type="text" name="adresse" style="margin-bottom: 30px" />
+            <input type="submit" value="Enregistrer" name="save" />
+            <input type="submit" value="Modifier" name="update" disabled />
+            <input type="submit" value="Supprimer" name="delete" disabled />
+            <input type="button" value="Annuler" name="annuler" />
+          </form>
+        </section>
+        <section>
+          <table id="salles">
+            <thead>
+              <tr>
+                <th>Id</th>
+                <th>Nom</th>
+                <th>Adresse</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </section>
+      </div>
+    </main>
+    <footer>All copyrights goes to Amin Kessmtini</footer>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.js"></script>
+    <script>
+      var dataTable = $("#salles").DataTable({
+        ajax: {
+          url: "http://localhost:9999/demandeur",
+          dataSrc: "",
+        },
+        columns: [{ data: "code" }, { data: "nom" }, { data: "adresse" }],
+      });
+
+      $("#salles tbody").on("click", "td", function () {
+        var cellData = dataTable.cell(this).data();
+        var rowData = dataTable.row($(this).closest("tr")).data();
+        $("input[name='idDemandeur']").val(rowData.code);
+        $("input[name='nomDemandeur']").val(rowData.nom);
+        $("input[name='adresse']").val(rowData.adresse);
+        $("input[name='save']").prop("disabled", true);
+        $("input[name='update']").prop("disabled", false);
+        $("input[name='delete']").prop("disabled", false);
+      });
+      function mettreAJourSalle(id, newNom, newAdress) {
+        fetch(`http://localhost:9999/demandeur/${id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ code: id, nom: newNom, adresse: newAdress }),
+        })
+          .then((response) => {
+            if (response.ok) {
+              // Mise à jour réussie
+              location.reload();
+
+              // Actualiser le DataTable ou effectuer d'autres actions nécessaires
+            } else {
+              console.error("Échec de la mise à jour de la salle");
+            }
+          })
+          .catch((error) =>
+            console.error("Erreur lors de la mise à jour de la salle:", error)
+          );
+      }
+
+      // Utilisation de la fonction pour mettre à jour une salle
+      $("input[name='update']").on("click", function () {
+        let id = $("input[name='idDemandeur']").val();
+        var nomDemandeur = $("input[name='nomDemandeur']").val();
+        var newAdress = $("input[name='adresse']").val();
+        mettreAJourSalle(id, nomDemandeur, newAdress);
+      });
+
+      function supprimerSalle(id) {
+        fetch(`http://localhost:9999/demandeur/${id}`, {
+          method: "DELETE",
+        })
+          .then((response) => {
+            if (response.ok) {
+
+              location.reload();
+            } else {
+              console.error("Échec de la suppression de la salle");
+            }
+          })
+          .catch((error) =>
+            console.error("Erreur lors de la suppression de la salle:", error)
+          );
+      }
+
+      // Utilisation de la fonction pour supprimer une salle
+      $("input[name='delete']").on("click", function () {
+        var idDemandeur = $("input[name='idDemandeur']").val();
+        supprimerSalle(idDemandeur);
+      });
+      $("input[name='annuler']").on("click", function () {
+        // Réinitialiser les champs du formulaire
+        $("input[name='nomDemandeur']").val("");
+        $("input[name='adresse']").val("");
+        // Désactiver les boutons "Modifier" et "Supprimer"
+        $("input[name='update']").prop("disabled", true);
+        $("input[name='delete']").prop("disabled", true);
+        $("input[name='save']").prop("disabled", false);
+      });
+      function addDemmandeur(newNom, nouvelleAdresse) {
+        fetch("http://localhost:9999/demandeur", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            nom: newNom,
+            adresse: nouvelleAdresse,
+          }),
+        })
+          .then((response) => {
+            if (response.ok) {
+              // Ajout réussi
+              location.reload(); // Recharger la page ou actualiser le DataTable
+            } else {
+              console.error("Échec de l'ajout de la salle");
+            }
+          })
+          .catch((error) =>
+            console.error("Erreur lors de l'ajout de la salle:", error)
+          );
+      }
+
+      $("input[name='save']").on("click", function () {
+        var nom = $("input[name='nomDemandeur']").val();
+        var nouvelleAdresse = $("input[name='adresse']").val();
+        addDemmandeur(nom, nouvelleAdresse);
+      });
+    </script>
+  </body>
+</html>

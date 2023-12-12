@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gérer Réservation</title>
+    <link rel="stylesheet" href="style/style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.css"
+    />
+  </head>
+  <body>
+    <header>
+      <nav>
+        <span id="Logo"> Commune </span>
+        <div>
+          <a
+            href=""
+            style="color: #22a39f; font-weight: 700; text-decoration: underline"
+            >Gérer Réservation</a
+          >
+          <a href="">Emettre Facture</a>
+          <a href="Salle.html">Salle</a>
+          <a href="Demandeur.html">Demandeur</a>
+        </div>
+      </nav>
+    </header>
+    <main>
+      <h1 style="margin-bottom: 30px">Gestion Réservations</h1>
+      <div>
+        <section>
+          <form action="" method="post">
+            <label for="numReservation">Numero Reservation</label>
+            <input type="text" name="numReservation" disabled />
+            <label for="dateReservation">Date Réservation</label>
+            <input
+              type="date"
+              name="dateReservation"
+              id="dateReservation"
+              onchange="populateHoraires()"
+            />
+            <label for="pageHoraire">Plage Horaire</label>
+            <label for="">Horaire Départ</label>
+            <select name="HoraireDepart" id="HoraireDepart"></select>
+            <label for="">Horaire Fin</label>
+            <select name="HoraireFin" id="HoraireFin"></select>
+
+            <label for="numSalle">Numéro Salle</label>
+            <select name="numSalle" id="numSalleSelect"></select>
+            <label for="demandeur">Demandeur</label>
+            <select name="demandeur" id="demandeurSelect"></select>
+            <label for="montant">Montant</label>
+            <input
+              type="text"
+              name="montant"
+              disabled
+              style="margin-bottom: 30px"
+              id="montant"
+            />
+            <input type="submit" value="Enregistrer" name="save" />
+            <input type="submit" value="Modifier" name="update" disabled />
+            <input type="submit" value="Supprimer" name="delete" disabled />
+          </form>
+        </section>
+        <section>
+          <table id="salles">
+            <thead>
+              <tr>
+                <th>Numero Reservation</th>
+                <th>Numéro Salle</th>
+                <th>Demandeur</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </section>
+      </div>
+    </main>
+    <footer>All copyrights goes to Amin Kessmtini</footer>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.js"></script>
+    <script>
+      var today = new Date();
+      today = new Date(today.setDate(today.getDate()))
+        .toISOString()
+        .split("T")[0];
+      document.getElementById("dateReservation").setAttribute("min", today);
+      var dataTable = $("#salles").DataTable({
+        ajax: {
+          url: "http://localhost:9999/demandeur",
+          dataSrc: "",
+        },
+        columns: [{ data: "code" }, { data: "nom" }, { data: "adresse" }],
+      });
+
+      async function populateSelect(endpoint, selectId, labelKey, idKey) {
+        try {
+          const response = await fetch(endpoint);
+          const data = await response.json();
+
+          const select = document.getElementById(selectId);
+
+          // Clear existing options
+          select.innerHTML = "";
+
+          // Add a default option
+          const defaultOption = document.createElement("option");
+          defaultOption.text = `Select ${labelKey}`;
+          defaultOption.disabled = true;
+          defaultOption.selected = true;
+          select.add(defaultOption);
+
+          // Populate options with names and set the id to the corresponding code
+          data.forEach((item) => {
+            const option = document.createElement("option");
+            option.value = item[idKey];
+            option.text = item[labelKey];
+            select.add(option);
+          });
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        }
+      }
+
+      // Load data for "Numéro Salle" select
+      populateSelect(
+        "http://localhost:9999/salle",
+        "numSalleSelect",
+        "num",
+        "num"
+      );
+
+      // Load data for "Demandeur" select
+      populateSelect(
+        "http://localhost:9999/demandeur",
+        "demandeurSelect",
+        "nom",
+        "code"
+      );
+
+      function populateHoraires() {
+        // Get the selected date
+        const selectedDate = document.getElementById("dateReservation").value;
+
+        // Make an AJAX request to your server to fetch the horaires based on the selected date
+        // You may use fetch or any AJAX library like jQuery.ajax
+        fetch(
+          `http://localhost:9999/plageHoraire/freePlageHoraire/${selectedDate}`
+        )
+          .then((response) => response.json())
+          .then((data) => {
+            // Assuming the data returned is an array of horaires
+            const horairesDepartSelect =
+              document.getElementById("HoraireDepart");
+            const horairesFinSelect = document.getElementById("HoraireFin");
+
+            // Clear existing options
+            horairesDepartSelect.innerHTML = "";
+            horairesFinSelect.innerHTML = "";
+
+            // Populate the selects with the fetched horaires
+            if (data === -1) {
+              for (let i = 8; i <= 19; i++) {
+                const optionDepart = document.createElement("option");
+                optionDepart.value = i;
+                optionDepart.textContent = i;
+                horairesDepartSelect.appendChild(optionDepart);
+              }
+              for (let i = 9; i <= 21; i++) {
+                const optionDepart = document.createElement("option");
+                optionDepart.value = i;
+                optionDepart.textContent = i;
+                horairesFinSelect.appendChild(optionDepart);
+              }
+            }
+          })
+          .catch((error) => console.error("Error fetching horaires:", error));
+      }
+      function calculatePrice() {
+        // Get the values from the form
+        const superficie = parseFloat(
+          document.getElementById("numSalleSelect").value
+        );
+        const heureDebut = parseInt(
+          document.getElementById("HoraireDepart").value
+        );
+        const heureFin = parseInt(document.getElementById("HoraireFin").value);
+
+        // Calculate the price based on the conditions
+        let price;
+        if (superficie <= 200) {
+          price = heureFin - heureDebut > 10 ? 1000 : 700;
+        } else {
+          price = heureFin - heureDebut > 10 ? 1500 : 1300;
+        }
+
+        // Display the calculated price in the 'montant' input field
+        document.getElementById("montant").value = price;
+      }
+
+      // Attach the calculatePrice function to the 'change' event of relevant inputs
+      document
+        .getElementById("HoraireDepart")
+        .addEventListener("change", calculatePrice);
+      document
+        .getElementById("HoraireFin")
+        .addEventListener("change", calculatePrice);
+      document
+        .getElementById("numSalleSelect")
+        .addEventListener("change", calculatePrice);
+      function saveReservation() {
+        // Get form values
+
+        const dateReservation =
+          document.getElementById("dateReservation").value;
+        const HoraireDepart = document.getElementById("HoraireDepart").value;
+        const HoraireFin = document.getElementById("HoraireFin").value;
+        const numSalle = document.getElementById("numSalleSelect").value;
+        const demandeur = document.getElementById("demandeurSelect").value;
+        const montant = parseInt(document.getElementById("montant").value);
+
+        // Create a Reservation object
+        const reservation = {
+          plageHoraire:{
+          date: dateReservation,
+          heureDebut: HoraireDepart,
+          heureFin: HoraireFin,
+          },
+
+          salle: { num: numSalle }, // Assuming you have a Salle entity with a 'num' property
+          demandeur: {
+            code: demandeur,
+          },
+          facture: {
+            montant: montant,
+          },
+          // Add other properties as needed
+        };
+
+        // Make a POST request to save the reservation
+        fetch("http://localhost:9999/reservation/save", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(reservation),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            console.log("Success:", data);
+            // Add any further handling or redirection as needed
+          })
+          .catch((error) => {
+            console.error("Error:", error);
+          });
+      }
+
+      // Call this function when the form is submitted
+      document.querySelector("form").addEventListener("submit", function (e) {
+        e.preventDefault();
+        saveReservation();
+      });
+    </script>
+  </body>
+</html>
